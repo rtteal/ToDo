@@ -3,7 +3,7 @@ Simple ToDo app
 
 This is an Android demo application of a to-do list.
 
-Time spent: 2 hours spent in total
+Time spent: 3 hours spent in total
 
 Completed user stories:
 
