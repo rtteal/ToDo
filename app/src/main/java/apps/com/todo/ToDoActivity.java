@@ -1,7 +1,9 @@
 package apps.com.todo;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
 
@@ -23,6 +26,9 @@ public class ToDoActivity extends Activity {
     private ArrayAdapter<String> itemAdapter;
     private ListView lvItems;
     private File TODOFILE;
+    public static final int REQUEST_CODE = 20;
+    public static final String MESSAGE = "MESSAGE";
+    public static final String POSITION = "POSITION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +40,7 @@ public class ToDoActivity extends Activity {
         readItems();
         itemAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemAdapter);
+        setupListViewListener();
     }
 
 
@@ -64,7 +71,6 @@ public class ToDoActivity extends Activity {
         String itemText = etNewItem.getText().toString();
         itemAdapter.add(itemText);
         etNewItem.setText("");
-        setupListViewListener();
         writeItems();
     }
 
@@ -81,6 +87,29 @@ public class ToDoActivity extends Activity {
                 }
 
         );
+        lvItems.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
+                        Intent i = new Intent(ToDoActivity.this, EditItemActivity.class);
+                        i.putExtra(POSITION, pos);
+                        i.putExtra(MESSAGE, items.get(pos));
+                        startActivityForResult(i, REQUEST_CODE);
+                    }
+                }
+        );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // REQUEST_CODE is defined above
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            String message = data.getExtras().getString(MESSAGE);
+            int pos = data.getIntExtra(POSITION, 0);
+            items.set(pos, message);
+            itemAdapter.notifyDataSetChanged();
+            writeItems();
+        }
     }
 
     private void writeItems(){
