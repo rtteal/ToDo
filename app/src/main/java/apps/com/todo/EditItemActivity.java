@@ -11,6 +11,8 @@ import android.widget.EditText;
 
 
 public class EditItemActivity extends Activity {
+    private Button btSave;
+    private EditText etEditItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,10 +20,14 @@ public class EditItemActivity extends Activity {
         setContentView(R.layout.activity_edit_item);
         final String itemText = getIntent().getStringExtra(ToDoActivity.MESSAGE);
         final int pos = getIntent().getIntExtra(ToDoActivity.POSITION, 0);
-        final EditText etEditItem = (EditText) findViewById(R.id.etEditItem);
+        etEditItem = (EditText) findViewById(R.id.etEditItem);
         etEditItem.setText(itemText);
         etEditItem.setSelection(etEditItem.getText().length());
-        Button btSave = (Button) findViewById(R.id.btSave);
+        btSave = (Button) findViewById(R.id.btSave);
+        setupOnClickListener(pos);
+    }
+
+    private void setupOnClickListener(final int pos){
         btSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -34,7 +40,6 @@ public class EditItemActivity extends Activity {
             }
         });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
