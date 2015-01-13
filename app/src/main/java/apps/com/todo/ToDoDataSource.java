@@ -17,7 +17,7 @@ public class ToDoDataSource {
     private SQLiteDatabase database;
     private SQLiteHelper dbHelper;
     private String[] allColumns = { SQLiteHelper.COLUMN_ID, SQLiteHelper.COLUMN_TODO };
-    public final String TAG = this.getClass().toString();
+    public final String TAG = this.getClass().getSimpleName();
 
     public ToDoDataSource(Context context) {
         dbHelper = new SQLiteHelper(context);
@@ -42,6 +42,7 @@ public class ToDoDataSource {
         cursor.moveToFirst();
         Todo newTodo = cursorToTodo(cursor);
         cursor.close();
+        Log.d(TAG, "Todo created with id: " + newTodo.getId());
         return newTodo;
     }
 
@@ -55,10 +56,10 @@ public class ToDoDataSource {
     public void updateTodo(Todo todo){
         long id = todo.getId();
         ContentValues values = new ContentValues();
-        values.put(SQLiteHelper.COLUMN_ID, todo.getTodo());
+        values.put(SQLiteHelper.COLUMN_TODO, todo.getTodo());
         Log.d(TAG, "Todo updated with id: " + id);
         database.update(SQLiteHelper.TABLE_TODO, values, SQLiteHelper.COLUMN_ID
-                + " = " + id, null);
+                + " = ?", new String[] {"" + id});
     }
 
     public List<Todo> getAllTodos() {

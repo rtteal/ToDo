@@ -20,14 +20,15 @@ public class EditItemActivity extends Activity {
         setContentView(R.layout.activity_edit_item);
         final String itemText = getIntent().getStringExtra(ToDoActivity.MESSAGE);
         final int pos = getIntent().getIntExtra(ToDoActivity.POSITION, 0);
+        final long id = getIntent().getLongExtra(ToDoActivity.ID, 0);
         etEditItem = (EditText) findViewById(R.id.etEditItem);
         etEditItem.setText(itemText);
         etEditItem.setSelection(etEditItem.getText().length());
         btSave = (Button) findViewById(R.id.btSave);
-        setupOnClickListener(pos);
+        setupOnClickListener(pos, id);
     }
 
-    private void setupOnClickListener(final int pos){
+    private void setupOnClickListener(final int pos, final long id){
         btSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -35,6 +36,7 @@ public class EditItemActivity extends Activity {
                 Intent data = new Intent();
                 data.putExtra(ToDoActivity.MESSAGE, text);
                 data.putExtra(ToDoActivity.POSITION, pos);
+                data.putExtra(ToDoActivity.ID, id);
                 setResult(RESULT_OK, data);
                 finish();
             }

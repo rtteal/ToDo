@@ -29,6 +29,7 @@ public class ToDoActivity extends Activity {
     public static final int REQUEST_CODE = 20;
     public static final String MESSAGE = "MESSAGE";
     public static final String POSITION = "POSITION";
+    public static final String ID = "ID";
     private ToDoDataSource datasource;
 
     @Override
@@ -75,7 +76,8 @@ public class ToDoActivity extends Activity {
                     public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
                         Intent i = new Intent(ToDoActivity.this, EditItemActivity.class);
                         i.putExtra(POSITION, pos);
-                        i.putExtra(MESSAGE, items.get(pos).toString());
+                        i.putExtra(MESSAGE, items.get(pos).getTodo());
+                        i.putExtra(ID, items.get(pos).getId());
                         startActivityForResult(i, REQUEST_CODE);
                     }
                 }
@@ -87,9 +89,12 @@ public class ToDoActivity extends Activity {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             String message = data.getExtras().getString(MESSAGE);
             int pos = data.getIntExtra(POSITION, 0);
-            items.get(pos).setTodo(message);
+            long id = data.getLongExtra(ID, 0);
+            Todo todo = new Todo(message);
+            todo.setId(id);
+            items.set(pos, todo);
             itemAdapter.notifyDataSetChanged();
-            datasource.updateTodo(new Todo(message));
+            datasource.updateTodo(todo);
         }
     }
 
