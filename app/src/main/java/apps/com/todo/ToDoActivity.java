@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Comment;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,23 +23,24 @@ import java.util.List;
 
 
 public class ToDoActivity extends Activity {
-    private List<String> items;
-    private ArrayAdapter<String> itemAdapter;
+    private List<Todo> items;
+    private ArrayAdapter<Todo> itemAdapter;
     private ListView lvItems;
-    private File TODOFILE;
     public static final int REQUEST_CODE = 20;
     public static final String MESSAGE = "MESSAGE";
     public static final String POSITION = "POSITION";
+    private ToDoDataSource datasource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // WARNING: throws NullPointerException if todo.txt does not exist
-        TODOFILE = new File(getFilesDir(), "todo.txt");
+        datasource = new ToDoDataSource(this);
+        datasource.open();
+
         lvItems = (ListView) findViewById(R.id.lvItems);
-        readItems();
-        itemAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        items = datasource.getAllTodos();
+        itemAdapter = new ArrayAdapter<Todo>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemAdapter);
         setupListViewListener();
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
@@ -48,9 +50,10 @@ public class ToDoActivity extends Activity {
     public void onAddItem(View v){
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
-        itemAdapter.add(itemText);
+        Todo todo = new Todo(itemText);
+        datasource.createTodo(todo);
+        itemAdapter.add(todo);
         etNewItem.setText("");
-        writeItems();
     }
 
     private void setupListViewListener(){
@@ -58,9 +61,9 @@ public class ToDoActivity extends Activity {
                 new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int pos, long id) {
+                        datasource.deleteTodo(items.get(pos));
                         items.remove(pos);
                         itemAdapter.notifyDataSetChanged();
-                        writeItems();
                         return true;
                     }
                 }
@@ -72,7 +75,7 @@ public class ToDoActivity extends Activity {
                     public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
                         Intent i = new Intent(ToDoActivity.this, EditItemActivity.class);
                         i.putExtra(POSITION, pos);
-                        i.putExtra(MESSAGE, items.get(pos));
+                        i.putExtra(MESSAGE, items.get(pos).toString());
                         startActivityForResult(i, REQUEST_CODE);
                     }
                 }
@@ -81,29 +84,12 @@ public class ToDoActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // REQUEST_CODE is defined above
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             String message = data.getExtras().getString(MESSAGE);
             int pos = data.getIntExtra(POSITION, 0);
-            items.set(pos, message);
+            items.get(pos).setTodo(message);
             itemAdapter.notifyDataSetChanged();
-            writeItems();
-        }
-    }
-
-    private void writeItems(){
-        try {
-            FileUtils.writeLines(TODOFILE, items);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void readItems(){
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(TODOFILE));
-        } catch (IOException e) {
-            e.printStackTrace();
+            datasource.updateTodo(new Todo(message));
         }
     }
 
@@ -128,4 +114,18 @@ public class ToDoActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onResume() {
+        datasource.open();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        // this is causing the database to close when the user navigates to the EditItemActivity...
+        //datasource.close();
+        super.onPause();
+    }
+
 }
