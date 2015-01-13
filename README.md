@@ -10,6 +10,7 @@ Completed user stories:
  * [x] Required: Successfully add and remove items
  * [x] Required: Editing todo items
  * [x] Required: Persist the todo items to text file
+ * [x] Suggested: Persist the todo items into SQLite instead of a text file
 
 Walkthrough of all user stories:
 
