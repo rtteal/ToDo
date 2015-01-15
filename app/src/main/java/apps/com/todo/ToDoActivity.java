@@ -24,7 +24,7 @@ import java.util.List;
 
 public class ToDoActivity extends Activity {
     private List<Todo> items;
-    private ArrayAdapter<Todo> itemAdapter;
+    private ToDoAdapter toDoAdapter;
     private ListView lvItems;
     public static final int REQUEST_CODE = 20;
     public static final String MESSAGE = "MESSAGE";
@@ -38,11 +38,10 @@ public class ToDoActivity extends Activity {
         setContentView(R.layout.activity_main);
         datasource = new ToDoDataSource(this);
         datasource.open();
-
         lvItems = (ListView) findViewById(R.id.lvItems);
         items = datasource.getAllTodos();
-        itemAdapter = new ArrayAdapter<Todo>(this, android.R.layout.simple_list_item_1, items);
-        lvItems.setAdapter(itemAdapter);
+        toDoAdapter = new ToDoAdapter(this, items);
+        lvItems.setAdapter(toDoAdapter);
         setupListViewListener();
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         etNewItem.setSelection(0);
@@ -53,7 +52,7 @@ public class ToDoActivity extends Activity {
         String itemText = etNewItem.getText().toString();
         Todo todo = new Todo(itemText);
         datasource.createTodo(todo);
-        itemAdapter.add(todo);
+        toDoAdapter.add(todo);
         etNewItem.setText("");
     }
 
@@ -64,7 +63,7 @@ public class ToDoActivity extends Activity {
                     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int pos, long id) {
                         datasource.deleteTodo(items.get(pos));
                         items.remove(pos);
-                        itemAdapter.notifyDataSetChanged();
+                        toDoAdapter.notifyDataSetChanged();
                         return true;
                     }
                 }
@@ -93,7 +92,7 @@ public class ToDoActivity extends Activity {
             Todo todo = new Todo(message);
             todo.setId(id);
             items.set(pos, todo);
-            itemAdapter.notifyDataSetChanged();
+            toDoAdapter.notifyDataSetChanged();
             datasource.updateTodo(todo);
         }
     }

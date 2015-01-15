@@ -11,6 +11,8 @@ Completed user stories:
  * [x] Required: Editing todo items
  * [x] Required: Persist the todo items to text file
  * [x] Suggested: Persist the todo items into SQLite instead of a text file
+ * [x] Suggested: Improve style of the todo items in the list using a custom adapter
+ * [x] Suggested: Tweak the style improving the UI / UX, play with colors
 
 Walkthrough of all user stories:
 
