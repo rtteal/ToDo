@@ -8,5 +8,8 @@
     <string name="title_activity_edit_item">Edit Item</string>
     <string name="edit_item">Edit Item Below</string>
     <string name="save">Save</string>
+    <string name="due_date">Pick due date</string>
+    <string name="todo_item">Todo Item</string>
+    <string name="todo_due_date">Due Date</string>
 
 </resources>

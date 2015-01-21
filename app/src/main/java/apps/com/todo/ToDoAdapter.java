@@ -16,6 +16,7 @@ public class ToDoAdapter extends ArrayAdapter<Todo> {
     // View lookup cache
     private static class ViewHolder {
         TextView todo;
+        TextView dueDate;
     }
 
     public ToDoAdapter(Context context, List<Todo> todos) {
@@ -31,10 +32,12 @@ public class ToDoAdapter extends ArrayAdapter<Todo> {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.item_todo, parent, false);
             viewHolder.todo = (TextView) convertView.findViewById(R.id.tvTodo);
+            viewHolder.dueDate = (TextView) convertView.findViewById(R.id.tvDueDate);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+        viewHolder.dueDate.setText(todo.getDate());
         viewHolder.todo.setText(todo.getTodo());
         return convertView;
     }

@@ -13,6 +13,8 @@ Completed user stories:
  * [x] Suggested: Persist the todo items into SQLite instead of a text file
  * [x] Suggested: Improve style of the todo items in the list using a custom adapter
  * [x] Suggested: Tweak the style improving the UI / UX, play with colors
+ * [x] Suggested: Add support for completion due dates for todo items (and display within listview item)
+ * [x] Suggested: Use a DialogFragment instead of new Activity for editing items
 
 Walkthrough of all user stories:
 

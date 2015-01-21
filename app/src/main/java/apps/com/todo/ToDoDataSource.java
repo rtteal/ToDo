@@ -16,8 +16,8 @@ import java.util.List;
 public class ToDoDataSource {
     private SQLiteDatabase database;
     private SQLiteHelper dbHelper;
-    private String[] allColumns = { SQLiteHelper.COLUMN_ID, SQLiteHelper.COLUMN_TODO };
-    public final String TAG = this.getClass().getSimpleName();
+    private String[] allColumns = { SQLiteHelper.COLUMN_ID, SQLiteHelper.COLUMN_TODO, SQLiteHelper.COLUMN_DUE_DATE };
+    private final String TAG = this.getClass().getSimpleName();
 
     public ToDoDataSource(Context context) {
         dbHelper = new SQLiteHelper(context);
@@ -34,6 +34,7 @@ public class ToDoDataSource {
     public Todo createTodo(Todo todo) {
         ContentValues values = new ContentValues();
         values.put(SQLiteHelper.COLUMN_TODO, todo.getTodo());
+        values.put(SQLiteHelper.COLUMN_DUE_DATE, todo.getDate());
         long insertId = database.insert(SQLiteHelper.TABLE_TODO, null,
                 values);
         Cursor cursor = database.query(SQLiteHelper.TABLE_TODO,
@@ -57,6 +58,7 @@ public class ToDoDataSource {
         long id = todo.getId();
         ContentValues values = new ContentValues();
         values.put(SQLiteHelper.COLUMN_TODO, todo.getTodo());
+        values.put(SQLiteHelper.COLUMN_DUE_DATE, todo.getDate());
         Log.d(TAG, "Todo updated with id: " + id);
         database.update(SQLiteHelper.TABLE_TODO, values, SQLiteHelper.COLUMN_ID
                 + " = ?", new String[] {"" + id});
@@ -83,7 +85,7 @@ public class ToDoDataSource {
         Todo todo = new Todo();
         todo.setId(cursor.getLong(0));
         todo.setTodo(cursor.getString(1));
+        todo.setDate(cursor.getString(2));
         return todo;
     }
-
 }

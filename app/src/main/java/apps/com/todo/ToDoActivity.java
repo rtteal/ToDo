@@ -3,6 +3,8 @@ package apps.com.todo;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,18 +20,19 @@ import org.w3c.dom.Comment;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
-public class ToDoActivity extends Activity {
+public class ToDoActivity extends FragmentActivity implements EditTodoDialog.EditTodoDialogListener {
     private List<Todo> items;
     private ToDoAdapter toDoAdapter;
     private ListView lvItems;
-    public static final int REQUEST_CODE = 20;
-    public static final String MESSAGE = "MESSAGE";
-    public static final String POSITION = "POSITION";
-    public static final String ID = "ID";
+    private int posBeingEdited;
+    private long idBeingEdited;
+    private final String TAG = this.getClass().getSimpleName();
     private ToDoDataSource datasource;
 
     @Override
@@ -43,14 +46,15 @@ public class ToDoActivity extends Activity {
         toDoAdapter = new ToDoAdapter(this, items);
         lvItems.setAdapter(toDoAdapter);
         setupListViewListener();
-        EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
-        etNewItem.setSelection(0);
     }
 
     public void onAddItem(View v){
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
         Todo todo = new Todo(itemText);
+        SimpleDateFormat df = new SimpleDateFormat("M/dd/yyyy");
+        Calendar c = Calendar.getInstance();
+        todo.setDate(df.format(c.getTime()));
         datasource.createTodo(todo);
         toDoAdapter.add(todo);
         etNewItem.setText("");
@@ -73,28 +77,12 @@ public class ToDoActivity extends Activity {
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
-                        Intent i = new Intent(ToDoActivity.this, EditItemActivity.class);
-                        i.putExtra(POSITION, pos);
-                        i.putExtra(MESSAGE, items.get(pos).getTodo());
-                        i.putExtra(ID, items.get(pos).getId());
-                        startActivityForResult(i, REQUEST_CODE);
+                        ToDoActivity.this.posBeingEdited = pos;
+                        ToDoActivity.this.idBeingEdited = items.get(pos).getId();
+                        showEditDialog(items.get(pos).getTodo(), items.get(pos).getDate());
                     }
                 }
         );
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            String message = data.getExtras().getString(MESSAGE);
-            int pos = data.getIntExtra(POSITION, 0);
-            long id = data.getLongExtra(ID, 0);
-            Todo todo = new Todo(message);
-            todo.setId(id);
-            items.set(pos, todo);
-            toDoAdapter.notifyDataSetChanged();
-            datasource.updateTodo(todo);
-        }
     }
 
     @Override
@@ -132,4 +120,19 @@ public class ToDoActivity extends Activity {
         super.onPause();
     }
 
+    private void showEditDialog(String todo, String date) {
+        FragmentManager fm = getSupportFragmentManager();
+        EditTodoDialog editNameDialog = EditTodoDialog.newInstance("Edit Todo", todo, date);
+        editNameDialog.show(fm, "fragment_edit_todo");
+    }
+
+    @Override
+    public void onFinishEditDialog(String inputText, String date) {
+        Log.d(TAG, String.format("editing id: %s, position: %s, inputText: %s, date: %s",
+                idBeingEdited, posBeingEdited, inputText, date));
+        items.get(posBeingEdited).setTodo(inputText);
+        items.get(posBeingEdited).setDate(date);
+        toDoAdapter.notifyDataSetChanged();
+        datasource.updateTodo(items.get(posBeingEdited));
+    }
 }

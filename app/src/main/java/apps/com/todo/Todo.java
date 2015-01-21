@@ -6,6 +6,7 @@ package apps.com.todo;
 public class Todo {
     private long id;
     private String todo;
+    private String date;
 
     public Todo() {
     }
@@ -28,6 +29,14 @@ public class Todo {
 
     public void setTodo(String todo) {
         this.todo = todo;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     @Override
